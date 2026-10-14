@@ -7,11 +7,13 @@
     "inlineSources": true,
     "types": []
   },
-  "include": ["src/**/*.ts", "core/src/**/*.ts"],
+  "include": ["src/**/*.ts", "core/src/**/*.ts", "stepper/src/**/*.ts"],
   "exclude": [
     "src/**/*.spec.ts",
     "src/**/*.test.ts",
     "core/src/**/*.spec.ts",
-    "core/src/**/*.test.ts"
+    "core/src/**/*.test.ts",
+    "stepper/src/**/*.spec.ts",
+    "stepper/src/**/*.test.ts"
   ]
 }

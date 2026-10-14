@@ -1,0 +1,41 @@
+<div ngTabs class="flex flex-col gap-6">
+  <!--
+    selectionMode="explicit" : les flèches déplacent le focus, Entrée / Espace sélectionne.
+    (en mode "follow", chaque flèche changerait d'étape — pas souhaitable pour un stepper)
+  -->
+  <div
+    ngTabList
+    selectionMode="explicit"
+    [selectedTab]="selectedValue()"
+    (selectedTabChange)="onSelectedValueChange($event)"
+    class="flex items-center gap-2"
+  >
+    @for (step of steps(); track step; let i = $index, last = $last) {
+      <div
+        ngTab
+        [value]="`${i}`"
+        class="group flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-sm text-muted-foreground outline-ring focus-visible:outline-2 focus-visible:outline-offset-2 aria-selected:font-medium aria-selected:text-foreground"
+      >
+        <span
+          class="flex size-7 items-center justify-center rounded-full border text-xs group-aria-selected:border-primary group-aria-selected:bg-primary group-aria-selected:text-primary-foreground"
+        >
+          {{ i + 1 }}
+        </span>
+        {{ step.label() }}
+      </div>
+
+      @if (!last) {
+        <span aria-hidden="true" class="h-px flex-1 bg-border"></span>
+      }
+    }
+  </div>
+
+  @for (step of steps(); track step; let i = $index) {
+    <!-- Aria rend le panneau masqué `inert`, mais le masquage visuel est à notre charge. -->
+    <div ngTabPanel #panel="ngTabPanel" [value]="`${i}`" [hidden]="!panel.visible()">
+      <ng-template ngTabContent>
+        <ng-container [ngTemplateOutlet]="step.content()" />
+      </ng-template>
+    </div>
+  }
+</div>
