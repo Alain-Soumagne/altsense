@@ -21,3 +21,11 @@
 - The `nx-generate` skill handles generator discovery internally - don't call nx_docs just to look up generator syntax
 
 <!-- nx configuration end-->
+
+# Alt Sense
+
+- Projet d'apprentissage d'Angular Aria : on avance progressivement, code propre et lisible avant tout (pas de tests/doc pour l'instant).
+- Une seule lib `libs/ui` (`@altsense/ui`) ; chaque composant = entry point secondaire (`@altsense/ui/<nom>`).
+- Classes : passer par `cn()` de `@altsense/ui/core` ; variantes dans un fichier `<nom>.variants.ts` (cva).
+- Couleurs : uniquement les tokens sémantiques (`bg-primary`, `text-muted-foreground`…), jamais de couleurs Tailwind brutes.
+- Angular 22 : zoneless, signals (`input()`, `model()`, `computed()`), `host` plutôt que `@HostBinding`, control flow `@if/@for`.
