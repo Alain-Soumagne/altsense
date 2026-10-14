@@ -13,7 +13,6 @@
   >
     @for (step of steps(); track step; let i = $index, last = $last) {
       @let state = states()[i];
-      @let hint = hintOf(step);
 
       <!--
         [disabled] : grâce à softDisabled (true par défaut sur ngTabList), l'onglet reste
@@ -24,51 +23,15 @@
         [value]="`${i}`"
         [disabled]="!reachable()[i]"
         [attr.aria-current]="i === selectedIndex() ? 'step' : null"
-        class="flex cursor-pointer items-center gap-2 rounded-md p-1 text-left outline-ring focus-visible:outline-2 focus-visible:outline-offset-2 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
+        [class]="triggerClass"
       >
-        <span [class]="indicatorClass(state)">
-          @if (customIndicator(); as indicator) {
-            <ng-container
-              [ngTemplateOutlet]="indicator.template"
-              [ngTemplateOutletContext]="{ $implicit: state, index: i }"
-            />
-          } @else {
-            @switch (state) {
-              @case ('complete') {
-                <svg
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                  class="size-1/2"
-                  aria-hidden="true"
-                >
-                  <path d="M3.5 8.5l3 3 6-7" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-              }
-              @case ('error') {
-                <span aria-hidden="true">!</span>
-              }
-              @default {
-                {{ i + 1 }}
-              }
-            }
-          }
-        </span>
-
-        <span class="flex flex-col">
-          <span [class]="labelClass(state)">
-            @if (step.customLabel(); as label) {
-              <ng-container [ngTemplateOutlet]="label.template" />
-            } @else {
-              {{ step.label() }}
-            }
-          </span>
-          @if (hint) {
-            <span [class]="hintClass(state === 'error')">{{ hint }}</span>
-          }
-          <span class="sr-only">{{ srStatusOf(state) }}</span>
-        </span>
+        <as-step-header
+          [step]="step"
+          [index]="i"
+          [state]="state"
+          [size]="size()"
+          [customIndicator]="customIndicator()"
+        />
       </div>
 
       @if (!last) {

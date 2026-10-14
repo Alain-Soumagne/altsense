@@ -18,16 +18,15 @@ import {
 import { Tab, TabContent, TabList, TabPanel, Tabs } from '@angular/aria/tabs';
 import { cn } from '@altsense/ui/core';
 import { Step } from './step';
+import { StepHeader } from './step-header';
 import { StepIndicator } from './step-templates';
 import {
   StepState,
   StepperOrientation,
   StepperSize,
   stepConnectorVariants,
-  stepHintVariants,
-  stepIndicatorVariants,
-  stepLabelVariants,
   stepListVariants,
+  stepTriggerVariants,
   stepperVariants,
 } from './stepper.variants';
 
@@ -41,7 +40,7 @@ import {
  */
 @Component({
   selector: 'as-stepper',
-  imports: [Tabs, TabList, Tab, TabPanel, TabContent, NgTemplateOutlet],
+  imports: [Tabs, TabList, Tab, TabPanel, TabContent, NgTemplateOutlet, StepHeader],
   templateUrl: './stepper.html',
   host: { class: 'block' },
 })
@@ -113,11 +112,7 @@ export class Stepper {
   protected readonly listClass = computed(() =>
     cn(stepListVariants({ orientation: this.orientation() })),
   );
-  protected readonly indicatorClass = (state: StepState) =>
-    cn(stepIndicatorVariants({ state, size: this.size() }));
-  protected readonly labelClass = (state: StepState) =>
-    cn(stepLabelVariants({ state, size: this.size() }));
-  protected readonly hintClass = (error: boolean) => cn(stepHintVariants({ error }));
+  protected readonly triggerClass = cn(stepTriggerVariants());
   protected readonly connectorClass = (complete: boolean) =>
     cn(
       stepConnectorVariants({
@@ -147,20 +142,6 @@ export class Stepper {
         }
       });
     });
-  }
-
-  /** Texte secondaire d'une étape : message d'erreur, sinon description, sinon « Optionnel ». */
-  protected hintOf(step: Step): string | undefined {
-    const error = step.error();
-    if (typeof error === 'string' && error) return error;
-    return step.description() ?? (step.optional() ? 'Optionnel' : undefined);
-  }
-
-  /** Texte lu uniquement par les lecteurs d'écran pour compléter l'état visuel. */
-  protected srStatusOf(state: StepState): string {
-    if (state === 'complete') return ', terminée';
-    if (state === 'error') return ', en erreur';
-    return '';
   }
 
   /** Va à l'étape atteignable précédente et place le focus sur son contenu. */

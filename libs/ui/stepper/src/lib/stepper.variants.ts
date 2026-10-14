@@ -24,6 +24,11 @@ export const stepListVariants = cva('flex', {
   defaultVariants: { orientation: 'horizontal' },
 });
 
+/** Élément cliquable d'une étape (onglet ou lien) : focus visible et état désactivé. */
+export const stepTriggerVariants = cva(
+  'flex cursor-pointer items-center gap-2 rounded-md p-1 text-left outline-ring focus-visible:outline-2 focus-visible:outline-offset-2 aria-disabled:cursor-not-allowed aria-disabled:opacity-50',
+);
+
 /** Pastille ronde (numéro ou coche) devant le libellé. */
 export const stepIndicatorVariants = cva(
   'flex shrink-0 items-center justify-center rounded-full border-2 font-medium transition-colors',
