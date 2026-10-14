@@ -11,12 +11,6 @@ import {
   stepLabelVariants,
 } from './stepper.variants';
 
-/**
- * Contenu visuel d'une étape : pastille, libellé et texte secondaire.
- *
- * Composant interne (non exporté) : il est partagé par le rendu « onglets » et le rendu
- * « liens » du stepper. `display: contents` laisse ses enfants s'aligner dans le déclencheur.
- */
 @Component({
   selector: 'as-step-header',
   imports: [NgTemplateOutlet],
@@ -40,7 +34,6 @@ export class StepHeader {
     cn(stepHintVariants({ error: this.state() === 'error' })),
   );
 
-  /** Texte secondaire : message d'erreur, sinon description, sinon « Optionnel ». */
   protected readonly hint = computed(() => {
     const step = this.step();
     const error = step.error();
@@ -48,7 +41,6 @@ export class StepHeader {
     return step.description() ?? (step.optional() ? 'Optionnel' : undefined);
   });
 
-  /** Texte lu uniquement par les lecteurs d'écran pour compléter l'état visuel. */
   protected readonly srStatus = computed(() => {
     if (this.state() === 'complete') return ', terminée';
     if (this.state() === 'error') return ', en erreur';

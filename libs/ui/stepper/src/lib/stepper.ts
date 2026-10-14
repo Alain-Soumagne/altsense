@@ -41,7 +41,6 @@ import {
   stepperVariants,
 } from './stepper.variants';
 
-/** Une étape est active si l'URL courante contient son chemin (sous-routes incluses). */
 const ACTIVE_MATCH: IsActiveMatchOptions = {
   paths: 'subset',
   queryParams: 'ignored',
@@ -50,16 +49,8 @@ const ACTIVE_MATCH: IsActiveMatchOptions = {
 };
 
 /**
- * Stepper avec deux rendus :
- *
- * - **onglets** (par défaut) : construit sur le pattern Tabs d'Angular Aria, qui fournit les rôles
- *   ARIA, le focus « roving », la navigation clavier et la gestion des onglets désactivés ;
- * - **router** (dès qu'une étape a un `link`) : une `<nav>` de liens `routerLink`, car une étape
- *   qui change l'URL est une navigation, pas un onglet. Le contenu vient du `<router-outlet>`
- *   projeté dans le stepper, et l'étape courante est déduite de l'URL.
- *
- * Dans les deux cas, le stepper gère l'état des étapes, le mode linéaire, la navigation
- * précédente / suivante, le focus et les annonces aux lecteurs d'écran.
+ * Renders Aria tabs by default, or a `<nav>` of router links as soon as a step has a `link`:
+ * a step that changes the URL is navigation, not a tab.
  */
 @Component({
   selector: 'as-stepper',
@@ -71,41 +62,30 @@ export class Stepper {
   private readonly announcer = inject(LiveAnnouncer);
   private readonly injector = inject(Injector);
   private readonly router = inject(Router);
-  /** Route du composant hôte : base des liens relatifs (absente si l'app n'a pas de routes). */
   private readonly route = inject(ActivatedRoute, { optional: true });
 
-  /** Index de l'étape courante (two-way binding : `[(selectedIndex)]`). */
   readonly selectedIndex = model(0);
 
-  /** Mode linéaire : impossible d'atteindre une étape tant qu'une précédente n'est pas terminée. */
   readonly linear = input(false, { transform: booleanAttribute });
 
-  /** Disposition : également transmise à Aria (flèches gauche/droite ou haut/bas). */
   readonly orientation = input<StepperOrientation>('horizontal');
 
   readonly size = input<StepperSize>('md');
 
-  /** Nom accessible de la liste des étapes (`<as-stepper aria-label="…">`). */
   readonly ariaLabel = input('Étapes', { alias: 'aria-label' });
 
-  /** Les `<as-step>` projetés dans le stepper. */
   protected readonly steps = contentChildren(Step);
 
-  /** Template de pastille personnalisé, s'il est fourni. */
   protected readonly customIndicator = contentChild(StepIndicator);
 
-  /** Les panneaux Aria rendus par le template, dans l'ordre des étapes (mode onglets). */
   private readonly panels = viewChildren(TabPanel);
 
-  /** Conteneur du `<router-outlet>` projeté (mode router). */
   private readonly routedContent = viewChild<ElementRef<HTMLElement>>('routedContent');
 
-  /** Mode router : activé dès qu'une étape déclare un `link`. */
   protected readonly routed = computed(() =>
     this.steps().some((step) => step.link() !== undefined),
   );
 
-  /** URL de chaque étape, résolue une fois pour le `routerLink` et la détection de l'étape active. */
   protected readonly urlTrees = computed(() =>
     this.steps().map((step) => {
       const link = step.link();
@@ -113,10 +93,6 @@ export class Stepper {
     }),
   );
 
-  /**
-   * Index de l'étape correspondant à l'URL courante, ou -1.
-   * `lastSuccessfulNavigation` est un signal du Router : ce computed se met à jour à chaque navigation.
-   */
   private readonly activeRouteIndex = computed(() => {
     const url = this.router.lastSuccessfulNavigation()?.finalUrl;
     if (!url) return -1;
@@ -125,10 +101,8 @@ export class Stepper {
     );
   });
 
-  /** Aria identifie les onglets par une `value` string : on utilise l'index. */
   protected readonly selectedValue = computed(() => `${this.selectedIndex()}`);
 
-  /** État visuel de chaque étape. */
   protected readonly states = computed<StepState[]>(() =>
     this.steps().map((step, index) => {
       if (step.error()) return 'error';
@@ -138,10 +112,6 @@ export class Stepper {
     }),
   );
 
-  /**
-   * Étapes atteignables. En mode linéaire, une étape est bloquée dès qu'une étape précédente
-   * non facultative est explicitement non terminée (`[completed]="false"`).
-   */
   protected readonly reachable = computed<boolean[]>(() => {
     let blocked = false;
     return this.steps().map((step) => {
@@ -151,7 +121,6 @@ export class Stepper {
     });
   });
 
-  /** Index de l'étape atteignable la plus proche dans une direction, ou -1. */
   private readonly nextIndex = computed(() =>
     this.reachable().findIndex((ok, i) => ok && i > this.selectedIndex()),
   );
@@ -162,7 +131,6 @@ export class Stepper {
   readonly hasNext = computed(() => this.nextIndex() !== -1);
   readonly hasPrevious = computed(() => this.previousIndex() !== -1);
 
-  // Classes calculées à partir des variantes cva, combinées via cn().
   protected readonly rootClass = computed(() =>
     cn(stepperVariants({ orientation: this.orientation() })),
   );
@@ -183,14 +151,13 @@ export class Stepper {
     );
 
   constructor() {
-    // Mode router : l'URL est la source de vérité, l'index la suit.
+    // In router mode the URL is the source of truth.
     effect(() => {
       const index = this.activeRouteIndex();
       if (index !== -1) this.selectedIndex.set(index);
     });
 
-    // Annonce chaque changement d'étape (hors affichage initial) : utile quand la navigation
-    // vient d'un bouton « Suivant », où le focus n'est pas sur la liste des étapes.
+    // Focus may be on a Next button outside the step list, so step changes are announced.
     let initial = true;
     effect(() => {
       const index = this.selectedIndex();
@@ -198,7 +165,6 @@ export class Stepper {
         initial = false;
         return;
       }
-      // untracked : seul un changement d'index doit déclencher une annonce.
       untracked(() => {
         const step = this.steps()[index];
         if (step) {
@@ -210,12 +176,10 @@ export class Stepper {
     });
   }
 
-  /** Va à l'étape atteignable précédente et place le focus sur son contenu. */
   previous(): void {
     if (this.hasPrevious()) this.goTo(this.previousIndex());
   }
 
-  /** Va à l'étape atteignable suivante et place le focus sur son contenu. */
   next(): void {
     if (this.hasNext()) this.goTo(this.nextIndex());
   }
@@ -223,7 +187,7 @@ export class Stepper {
   private goTo(index: number): void {
     const tree = this.urlTrees()[index];
     if (tree) {
-      // Mode router : on navigue, l'index sera mis à jour par l'effet de synchronisation.
+      // selectedIndex follows through the URL sync effect.
       void this.router.navigateByUrl(tree).then((navigated) => {
         if (navigated) this.focusContent();
       });
@@ -233,10 +197,7 @@ export class Stepper {
     }
   }
 
-  /**
-   * Le contenu n'est à jour qu'après le prochain rendu : afterNextRender attend le DOM avant de
-   * déplacer le focus (panneau Aria avec tabindex="0", ou conteneur du router-outlet).
-   */
+  /** The new content only exists after the next render. */
   private focusContent(): void {
     afterNextRender(
       () => {

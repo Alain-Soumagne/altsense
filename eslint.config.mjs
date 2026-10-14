@@ -44,9 +44,7 @@ export default [
       '**/*.cjs',
       '**/*.mjs',
     ],
-    // Override or add rules here
     rules: {
-      // Paramètres préfixés par « _ » : volontairement inutilisés (ex. ngTemplateContextGuard).
       '@typescript-eslint/no-unused-vars': [
         'warn',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },

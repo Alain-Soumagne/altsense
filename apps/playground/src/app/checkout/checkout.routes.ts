@@ -3,10 +3,7 @@ import { CanActivateFn, Route, Router } from '@angular/router';
 import { Checkout } from './checkout';
 import { CheckoutStore } from './checkout.store';
 
-/**
- * Le mode linéaire du stepper désactive les liens, mais n'empêche pas de saisir l'URL :
- * c'est le rôle d'un guard. Ici, on renvoie vers la première étape incomplète.
- */
+// Linear mode disables the step links but cannot stop a typed URL: the guard does.
 const requireCompleted =
   (...steps: ('informations' | 'livraison')[]): CanActivateFn =>
   () => {

@@ -25,7 +25,6 @@ export class StepperDemo {
   protected readonly address = signal('');
   protected readonly nameValid = computed(() => this.name().trim().length >= 2);
   protected readonly addressValid = computed(() => this.address().trim().length >= 5);
-  /** Erreur affichée seulement une fois la saisie commencée. */
   protected readonly addressError = computed(() =>
     this.address() && !this.addressValid() ? 'Adresse trop courte' : false,
   );
