@@ -1,0 +1,24 @@
+<header class="flex items-center justify-between border-b px-6 py-4">
+  <h1 class="text-xl font-semibold tracking-tight">
+    Alt Sense <span class="font-normal text-muted-foreground">playground</span>
+  </h1>
+  <button
+    type="button"
+    class="rounded-md border px-3 py-1.5 text-sm outline-ring hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2"
+    [attr.aria-pressed]="dark()"
+    (click)="toggleTheme()"
+  >
+    Thème sombre
+  </button>
+</header>
+
+<main class="mx-auto max-w-4xl space-y-8 px-6 py-10">
+  <section aria-labelledby="tokens-title" class="space-y-4">
+    <h2 id="tokens-title" class="text-lg font-semibold">Tokens de couleur</h2>
+    <ul class="grid grid-cols-2 gap-4 sm:grid-cols-5">
+      @for (swatch of swatches; track swatch.name) {
+        <li [class]="swatchClass(swatch.class)">{{ swatch.name }}</li>
+      }
+    </ul>
+  </section>
+</main>

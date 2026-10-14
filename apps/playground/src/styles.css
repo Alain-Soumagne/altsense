@@ -1,0 +1,4 @@
+@import 'tailwindcss';
+@import '../../../libs/ui/src/styles/altsense.css';
+
+@source '../../../libs';
