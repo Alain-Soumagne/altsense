@@ -13,17 +13,39 @@
 </header>
 
 <main class="mx-auto max-w-3xl space-y-6 px-6 py-10">
-  <h2 class="text-lg font-semibold">Stepper</h2>
+  <h2 class="text-lg font-semibold">Stepper linéaire</h2>
 
-  <as-stepper #stepper [(selectedIndex)]="currentStep" class="rounded-lg border bg-surface p-6">
-    <as-step label="Informations">
-      <p>Étape 1 — tes informations personnelles.</p>
+  <as-stepper
+    #stepper
+    linear
+    [(selectedIndex)]="currentStep"
+    class="rounded-lg border bg-surface p-6"
+  >
+    <as-step label="Informations" [completed]="nameValid()">
+      <label class="flex flex-col gap-1 text-sm">
+        Nom (2 caractères min.)
+        <input
+          class="rounded-md border bg-background px-3 py-2 outline-ring focus-visible:outline-2"
+          [value]="name()"
+          (input)="name.set($any($event.target).value)"
+        />
+      </label>
     </as-step>
-    <as-step label="Livraison">
-      <p>Étape 2 — l'adresse de livraison.</p>
+    <as-step label="Livraison" [completed]="addressValid()">
+      <label class="flex flex-col gap-1 text-sm">
+        Adresse (5 caractères min.)
+        <input
+          class="rounded-md border bg-background px-3 py-2 outline-ring focus-visible:outline-2"
+          [value]="address()"
+          (input)="address.set($any($event.target).value)"
+        />
+      </label>
+    </as-step>
+    <as-step label="Options" optional>
+      <p class="text-sm">Étape facultative : elle ne bloque pas la suite.</p>
     </as-step>
     <as-step label="Paiement">
-      <p>Étape 3 — le moyen de paiement.</p>
+      <p class="text-sm">Dernière étape.</p>
     </as-step>
   </as-stepper>
 
@@ -31,16 +53,18 @@
     <button
       type="button"
       class="rounded-md border px-4 py-2 text-sm outline-ring hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50"
-      [disabled]="stepper.isFirst()"
+      [disabled]="!stepper.hasPrevious()"
       (click)="stepper.previous()"
     >
       Précédent
     </button>
-    <span class="text-sm text-muted-foreground">Étape courante : {{ currentStep() + 1 }}</span>
+    <span class="text-sm text-muted-foreground"
+      >Étape courante : {{ currentStep() + 1 }}</span
+    >
     <button
       type="button"
       class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground outline-ring focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50"
-      [disabled]="stepper.isLast()"
+      [disabled]="!stepper.hasNext()"
       (click)="stepper.next()"
     >
       Suivant

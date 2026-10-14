@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import { Step, Stepper } from '@altsense/ui/stepper';
 
 @Component({
@@ -10,6 +10,13 @@ import { Step, Stepper } from '@altsense/ui/stepper';
 export class App {
   protected readonly dark = signal(false);
   protected readonly currentStep = signal(0);
+
+  protected readonly name = signal('');
+  protected readonly address = signal('');
+  protected readonly nameValid = computed(() => this.name().trim().length >= 2);
+  protected readonly addressValid = computed(
+    () => this.address().trim().length >= 5,
+  );
 
   protected toggleTheme(): void {
     this.dark.update((d) => !d);

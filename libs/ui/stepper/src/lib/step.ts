@@ -1,4 +1,10 @@
-import { Component, TemplateRef, input, viewChild } from '@angular/core';
+import {
+  Component,
+  TemplateRef,
+  booleanAttribute,
+  input,
+  viewChild,
+} from '@angular/core';
 
 /**
  * Une étape du stepper.
@@ -16,9 +22,16 @@ export class Step {
 
   /**
    * Étape terminée ?
-   * Non renseigné (`undefined`) : l'étape est considérée terminée dès qu'on l'a dépassée.
+   * Non renseigné (`undefined`) : l'étape est considérée terminée dès qu'on l'a dépassée,
+   * et ne bloque jamais le mode linéaire.
    */
   readonly completed = input<boolean | undefined>(undefined);
+
+  /** Étape facultative : ne bloque pas le mode linéaire, même non terminée. */
+  readonly optional = input(false, { transform: booleanAttribute });
+
+  /** Étape inaccessible, quel que soit le mode. */
+  readonly disabled = input(false, { transform: booleanAttribute });
 
   /** Contenu de l'étape, rendu par le stepper. */
   readonly content = viewChild.required(TemplateRef);
