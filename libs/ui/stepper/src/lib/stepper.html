@@ -23,6 +23,7 @@
         ngTab
         [value]="`${i}`"
         [disabled]="!reachable()[i]"
+        [attr.aria-current]="i === selectedIndex() ? 'step' : null"
         class="flex cursor-pointer items-center gap-2 rounded-md p-1 text-left outline-ring focus-visible:outline-2 focus-visible:outline-offset-2 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
       >
         <span [class]="indicatorClass(state)">
@@ -66,6 +67,7 @@
           @if (hint) {
             <span [class]="hintClass(state === 'error')">{{ hint }}</span>
           }
+          <span class="sr-only">{{ srStatusOf(state) }}</span>
         </span>
       </div>
 
@@ -82,7 +84,7 @@
       #panel="ngTabPanel"
       [value]="`${i}`"
       [hidden]="!panel.visible()"
-      class="min-w-0 flex-1"
+      class="min-w-0 flex-1 rounded-md outline-ring focus-visible:outline-2 focus-visible:outline-offset-4"
     >
       <ng-template ngTabContent>
         <ng-container [ngTemplateOutlet]="step.content()" />

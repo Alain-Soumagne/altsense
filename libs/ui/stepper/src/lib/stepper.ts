@@ -1,12 +1,19 @@
 import { NgTemplateOutlet } from '@angular/common';
+import { LiveAnnouncer } from '@angular/cdk/a11y';
 import {
   Component,
+  Injector,
+  afterNextRender,
   booleanAttribute,
   computed,
   contentChild,
   contentChildren,
+  effect,
+  inject,
   input,
   model,
+  untracked,
+  viewChildren,
 } from '@angular/core';
 import { Tab, TabContent, TabList, TabPanel, Tabs } from '@angular/aria/tabs';
 import { cn } from '@altsense/ui/core';
@@ -29,8 +36,8 @@ import {
  *
  * Aria fournit : rôles ARIA (tablist / tab / tabpanel), liens aria-controls / aria-labelledby,
  * focus « roving », navigation clavier (flèches, Home, End) et gestion des onglets désactivés.
- * Le stepper ajoute : la notion d'index, l'état de chaque étape, le mode linéaire
- * et la navigation précédente / suivante.
+ * Le stepper ajoute : la notion d'index, l'état de chaque étape, le mode linéaire,
+ * la navigation précédente / suivante et les annonces aux lecteurs d'écran.
  */
 @Component({
   selector: 'as-stepper',
@@ -39,6 +46,9 @@ import {
   host: { class: 'block' },
 })
 export class Stepper {
+  private readonly announcer = inject(LiveAnnouncer);
+  private readonly injector = inject(Injector);
+
   /** Index de l'étape courante (two-way binding : `[(selectedIndex)]`). */
   readonly selectedIndex = model(0);
 
@@ -55,6 +65,9 @@ export class Stepper {
 
   /** Template de pastille personnalisé, s'il est fourni. */
   protected readonly customIndicator = contentChild(StepIndicator);
+
+  /** Les panneaux Aria rendus par le template, dans l'ordre des étapes. */
+  private readonly panels = viewChildren(TabPanel);
 
   /** Aria identifie les onglets par une `value` string : on utilise l'index. */
   protected readonly selectedValue = computed(() => `${this.selectedIndex()}`);
@@ -114,6 +127,28 @@ export class Stepper {
       }),
     );
 
+  constructor() {
+    // Annonce chaque changement d'étape (hors affichage initial) : utile quand la navigation
+    // vient d'un bouton « Suivant », où le focus n'est pas sur la liste des étapes.
+    let initial = true;
+    effect(() => {
+      const index = this.selectedIndex();
+      if (initial) {
+        initial = false;
+        return;
+      }
+      // untracked : seul un changement d'index doit déclencher une annonce.
+      untracked(() => {
+        const step = this.steps()[index];
+        if (step) {
+          this.announcer.announce(
+            `Étape ${index + 1} sur ${this.steps().length} : ${step.label()}`,
+          );
+        }
+      });
+    });
+  }
+
   /** Texte secondaire d'une étape : message d'erreur, sinon description, sinon « Optionnel ». */
   protected hintOf(step: Step): string | undefined {
     const error = step.error();
@@ -121,12 +156,35 @@ export class Stepper {
     return step.description() ?? (step.optional() ? 'Optionnel' : undefined);
   }
 
-  previous(): void {
-    if (this.hasPrevious()) this.selectedIndex.set(this.previousIndex());
+  /** Texte lu uniquement par les lecteurs d'écran pour compléter l'état visuel. */
+  protected srStatusOf(state: StepState): string {
+    if (state === 'complete') return ', terminée';
+    if (state === 'error') return ', en erreur';
+    return '';
   }
 
+  /** Va à l'étape atteignable précédente et place le focus sur son contenu. */
+  previous(): void {
+    if (!this.hasPrevious()) return;
+    this.selectedIndex.set(this.previousIndex());
+    this.focusSelectedPanel();
+  }
+
+  /** Va à l'étape atteignable suivante et place le focus sur son contenu. */
   next(): void {
-    if (this.hasNext()) this.selectedIndex.set(this.nextIndex());
+    if (!this.hasNext()) return;
+    this.selectedIndex.set(this.nextIndex());
+    this.focusSelectedPanel();
+  }
+
+  /**
+   * Le panneau n'est visible qu'après le prochain rendu : afterNextRender attend que le DOM
+   * soit à jour avant de déplacer le focus (le panneau visible a tabindex="0" grâce à Aria).
+   */
+  private focusSelectedPanel(): void {
+    afterNextRender(() => this.panels()[this.selectedIndex()]?.element.focus(), {
+      injector: this.injector,
+    });
   }
 
   protected onSelectedValueChange(value: string | undefined): void {
