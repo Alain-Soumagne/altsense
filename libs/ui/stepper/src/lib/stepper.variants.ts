@@ -1,7 +1,7 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 
 /** État visuel d'une étape, dérivé par le stepper. */
-export type StepState = 'upcoming' | 'current' | 'complete';
+export type StepState = 'upcoming' | 'current' | 'complete' | 'error';
 
 /** Conteneur racine : liste des étapes au-dessus (horizontal) ou à gauche (vertical) du contenu. */
 export const stepperVariants = cva('flex', {
@@ -33,6 +33,7 @@ export const stepIndicatorVariants = cva(
         upcoming: 'border-border text-muted-foreground',
         current: 'border-primary bg-primary text-primary-foreground',
         complete: 'border-primary text-primary',
+        error: 'border-danger bg-danger text-danger-foreground',
       },
       size: {
         sm: 'size-6 text-xs',
@@ -50,6 +51,7 @@ export const stepLabelVariants = cva('transition-colors', {
       upcoming: 'text-muted-foreground',
       current: 'font-medium text-foreground',
       complete: 'text-foreground',
+      error: 'font-medium text-danger',
     },
     size: {
       sm: 'text-xs',
@@ -58,6 +60,17 @@ export const stepLabelVariants = cva('transition-colors', {
     },
   },
   defaultVariants: { state: 'upcoming', size: 'md' },
+});
+
+/** Texte secondaire sous le libellé (description, « Optionnel » ou message d'erreur). */
+export const stepHintVariants = cva('text-xs', {
+  variants: {
+    error: {
+      true: 'text-danger',
+      false: 'text-muted-foreground',
+    },
+  },
+  defaultVariants: { error: false },
 });
 
 /** Trait reliant deux étapes : coloré une fois l'étape précédente terminée. */

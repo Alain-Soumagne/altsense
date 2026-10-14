@@ -3,6 +3,7 @@ import {
   Component,
   booleanAttribute,
   computed,
+  contentChild,
   contentChildren,
   input,
   model,
@@ -10,11 +11,13 @@ import {
 import { Tab, TabContent, TabList, TabPanel, Tabs } from '@angular/aria/tabs';
 import { cn } from '@altsense/ui/core';
 import { Step } from './step';
+import { StepIndicator } from './step-templates';
 import {
   StepState,
   StepperOrientation,
   StepperSize,
   stepConnectorVariants,
+  stepHintVariants,
   stepIndicatorVariants,
   stepLabelVariants,
   stepListVariants,
@@ -50,12 +53,16 @@ export class Stepper {
   /** Les `<as-step>` projetés dans le stepper. */
   protected readonly steps = contentChildren(Step);
 
+  /** Template de pastille personnalisé, s'il est fourni. */
+  protected readonly customIndicator = contentChild(StepIndicator);
+
   /** Aria identifie les onglets par une `value` string : on utilise l'index. */
   protected readonly selectedValue = computed(() => `${this.selectedIndex()}`);
 
   /** État visuel de chaque étape. */
   protected readonly states = computed<StepState[]>(() =>
     this.steps().map((step, index) => {
+      if (step.error()) return 'error';
       if (index === this.selectedIndex()) return 'current';
       const completed = step.completed() ?? index < this.selectedIndex();
       return completed ? 'complete' : 'upcoming';
@@ -97,6 +104,7 @@ export class Stepper {
     cn(stepIndicatorVariants({ state, size: this.size() }));
   protected readonly labelClass = (state: StepState) =>
     cn(stepLabelVariants({ state, size: this.size() }));
+  protected readonly hintClass = (error: boolean) => cn(stepHintVariants({ error }));
   protected readonly connectorClass = (complete: boolean) =>
     cn(
       stepConnectorVariants({
@@ -105,6 +113,13 @@ export class Stepper {
         size: this.size(),
       }),
     );
+
+  /** Texte secondaire d'une étape : message d'erreur, sinon description, sinon « Optionnel ». */
+  protected hintOf(step: Step): string | undefined {
+    const error = step.error();
+    if (typeof error === 'string' && error) return error;
+    return step.description() ?? (step.optional() ? 'Optionnel' : undefined);
+  }
 
   previous(): void {
     if (this.hasPrevious()) this.selectedIndex.set(this.previousIndex());

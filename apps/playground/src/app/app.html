@@ -49,7 +49,7 @@
     [(selectedIndex)]="currentStep"
     class="rounded-lg border bg-surface p-6"
   >
-    <as-step label="Informations" [completed]="nameValid()">
+    <as-step label="Informations" description="Qui êtes-vous ?" [completed]="nameValid()">
       <label class="flex flex-col gap-1 text-sm">
         Nom (2 caractères min.)
         <input
@@ -59,7 +59,7 @@
         />
       </label>
     </as-step>
-    <as-step label="Livraison" [completed]="addressValid()">
+    <as-step label="Livraison" [completed]="addressValid()" [error]="addressError()">
       <label class="flex flex-col gap-1 text-sm">
         Adresse (5 caractères min.)
         <input
@@ -96,4 +96,27 @@
       Suivant
     </button>
   </div>
+
+  <h2 class="pt-6 text-lg font-semibold">Templates personnalisés</h2>
+
+  <as-stepper [(selectedIndex)]="customStep" class="rounded-lg border bg-surface p-6">
+    <!-- Pastille personnalisée pour toutes les étapes : lettre au lieu du numéro. -->
+    <ng-template asStepIndicator let-state let-index="index">
+      {{ state === 'complete' ? '✓' : 'ABC'[index] }}
+    </ng-template>
+
+    <as-step label="Panier">
+      <p class="text-sm">Contenu du panier.</p>
+    </as-step>
+    <as-step label="Paiement sécurisé">
+      <ng-template asStepLabel>
+        Paiement
+        <span class="rounded bg-success px-1.5 py-0.5 text-xs text-success-foreground">SSL</span>
+      </ng-template>
+      <p class="text-sm">Le libellé de cette étape est un template riche.</p>
+    </as-step>
+    <as-step label="Confirmation">
+      <p class="text-sm">Merci !</p>
+    </as-step>
+  </as-stepper>
 </main>

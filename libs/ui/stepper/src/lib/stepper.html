@@ -13,6 +13,7 @@
   >
     @for (step of steps(); track step; let i = $index, last = $last) {
       @let state = states()[i];
+      @let hint = hintOf(step);
 
       <!--
         [disabled] : grâce à softDisabled (true par défaut sur ngTabList), l'onglet reste
@@ -22,28 +23,48 @@
         ngTab
         [value]="`${i}`"
         [disabled]="!reachable()[i]"
-        class="flex cursor-pointer items-center gap-2 rounded-md p-1 outline-ring focus-visible:outline-2 focus-visible:outline-offset-2 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
+        class="flex cursor-pointer items-center gap-2 rounded-md p-1 text-left outline-ring focus-visible:outline-2 focus-visible:outline-offset-2 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
       >
         <span [class]="indicatorClass(state)">
-          @if (state === 'complete') {
-            <svg
-              viewBox="0 0 16 16"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              class="size-1/2"
-              aria-hidden="true"
-            >
-              <path d="M3.5 8.5l3 3 6-7" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
+          @if (customIndicator(); as indicator) {
+            <ng-container
+              [ngTemplateOutlet]="indicator.template"
+              [ngTemplateOutletContext]="{ $implicit: state, index: i }"
+            />
           } @else {
-            {{ i + 1 }}
+            @switch (state) {
+              @case ('complete') {
+                <svg
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  class="size-1/2"
+                  aria-hidden="true"
+                >
+                  <path d="M3.5 8.5l3 3 6-7" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              }
+              @case ('error') {
+                <span aria-hidden="true">!</span>
+              }
+              @default {
+                {{ i + 1 }}
+              }
+            }
           }
         </span>
+
         <span class="flex flex-col">
-          <span [class]="labelClass(state)">{{ step.label() }}</span>
-          @if (step.optional()) {
-            <span class="text-xs text-muted-foreground">Optionnel</span>
+          <span [class]="labelClass(state)">
+            @if (step.customLabel(); as label) {
+              <ng-container [ngTemplateOutlet]="label.template" />
+            } @else {
+              {{ step.label() }}
+            }
+          </span>
+          @if (hint) {
+            <span [class]="hintClass(state === 'error')">{{ hint }}</span>
           }
         </span>
       </div>
@@ -56,7 +77,13 @@
 
   @for (step of steps(); track step; let i = $index) {
     <!-- Aria rend le panneau masqué `inert`, mais le masquage visuel est à notre charge. -->
-    <div ngTabPanel #panel="ngTabPanel" [value]="`${i}`" [hidden]="!panel.visible()">
+    <div
+      ngTabPanel
+      #panel="ngTabPanel"
+      [value]="`${i}`"
+      [hidden]="!panel.visible()"
+      class="min-w-0 flex-1"
+    >
       <ng-template ngTabContent>
         <ng-container [ngTemplateOutlet]="step.content()" />
       </ng-template>

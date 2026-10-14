@@ -1,4 +1,12 @@
-import { Component, TemplateRef, booleanAttribute, input, viewChild } from '@angular/core';
+import {
+  Component,
+  TemplateRef,
+  booleanAttribute,
+  contentChild,
+  input,
+  viewChild,
+} from '@angular/core';
+import { StepLabel } from './step-templates';
 
 /**
  * Une étape du stepper.
@@ -11,8 +19,14 @@ import { Component, TemplateRef, booleanAttribute, input, viewChild } from '@ang
   template: '<ng-template><ng-content /></ng-template>',
 })
 export class Step {
-  /** Libellé affiché dans la liste des étapes. */
+  /**
+   * Libellé de l'étape. Toujours requis : même avec un template `asStepLabel`,
+   * il sert de texte de référence (annonces aux lecteurs d'écran).
+   */
   readonly label = input.required<string>();
+
+  /** Texte secondaire affiché sous le libellé. */
+  readonly description = input<string>();
 
   /**
    * Étape terminée ?
@@ -27,6 +41,15 @@ export class Step {
   /** Étape inaccessible, quel que soit le mode. */
   readonly disabled = input(false, { transform: booleanAttribute });
 
+  /**
+   * Erreur sur l'étape : `true` pour l'état visuel seul, ou un message affiché
+   * à la place de la description.
+   */
+  readonly error = input<boolean | string>(false);
+
   /** Contenu de l'étape, rendu par le stepper. */
   readonly content = viewChild.required(TemplateRef);
+
+  /** Template de libellé personnalisé, s'il est fourni. */
+  readonly customLabel = contentChild(StepLabel);
 }
