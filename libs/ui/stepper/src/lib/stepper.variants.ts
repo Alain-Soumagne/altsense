@@ -24,6 +24,17 @@ export const stepListVariants = cva('flex', {
   defaultVariants: { orientation: 'horizontal' },
 });
 
+/** Mode router : `<li>` regroupant le lien d'une étape et le connecteur qui le suit. */
+export const stepItemVariants = cva('flex', {
+  variants: {
+    orientation: {
+      horizontal: 'flex-1 items-center gap-3 last:flex-none',
+      vertical: 'flex-col gap-1',
+    },
+  },
+  defaultVariants: { orientation: 'horizontal' },
+});
+
 /** Élément cliquable d'une étape (onglet ou lien) : focus visible et état désactivé. */
 export const stepTriggerVariants = cva(
   'flex cursor-pointer items-center gap-2 rounded-md p-1 text-left outline-ring focus-visible:outline-2 focus-visible:outline-offset-2 aria-disabled:cursor-not-allowed aria-disabled:opacity-50',

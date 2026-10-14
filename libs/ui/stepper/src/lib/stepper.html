@@ -1,57 +1,116 @@
-<div ngTabs [class]="rootClass()">
+@if (routed()) {
   <!--
-    selectionMode="explicit" : les flèches déplacent le focus, Entrée / Espace sélectionne.
-    (en mode "follow", chaque flèche changerait d'étape — pas souhaitable pour un stepper)
+    Mode router : une étape qui change l'URL est un lien de navigation, pas un onglet.
+    On utilise donc <nav> + liste ordonnée + routerLink, et aria-current="step" pour l'étape courante.
   -->
-  <div
-    ngTabList
-    selectionMode="explicit"
-    [orientation]="orientation()"
-    [selectedTab]="selectedValue()"
-    (selectedTabChange)="onSelectedValueChange($event)"
-    [class]="listClass()"
-  >
-    @for (step of steps(); track step; let i = $index, last = $last) {
-      @let state = states()[i];
+  <div [class]="rootClass()">
+    <nav [attr.aria-label]="ariaLabel()">
+      <ol [class]="listClass()">
+        @for (step of steps(); track step; let i = $index, last = $last) {
+          @let state = states()[i];
 
-      <!--
-        [disabled] : grâce à softDisabled (true par défaut sur ngTabList), l'onglet reste
-        focalisable au clavier mais n'est plus sélectionnable, et reçoit aria-disabled="true".
-      -->
-      <div
-        ngTab
-        [value]="`${i}`"
-        [disabled]="!reachable()[i]"
-        [attr.aria-current]="i === selectedIndex() ? 'step' : null"
-        [class]="triggerClass"
-      >
-        <as-step-header
-          [step]="step"
-          [index]="i"
-          [state]="state"
-          [size]="size()"
-          [customIndicator]="customIndicator()"
-        />
-      </div>
+          <li [class]="itemClass()">
+            @if (reachable()[i]) {
+              <a
+                [routerLink]="urlTrees()[i]"
+                [attr.aria-current]="i === selectedIndex() ? 'step' : null"
+                [class]="triggerClass"
+              >
+                <as-step-header
+                  [step]="step"
+                  [index]="i"
+                  [state]="state"
+                  [size]="size()"
+                  [customIndicator]="customIndicator()"
+                />
+              </a>
+            } @else {
+              <!-- Lien désactivé : pas de href, mais reste focalisable pour être découvert au clavier. -->
+              <a role="link" aria-disabled="true" tabindex="0" [class]="triggerClass">
+                <as-step-header
+                  [step]="step"
+                  [index]="i"
+                  [state]="state"
+                  [size]="size()"
+                  [customIndicator]="customIndicator()"
+                />
+              </a>
+            }
 
-      @if (!last) {
-        <span aria-hidden="true" [class]="connectorClass(state === 'complete')"></span>
-      }
-    }
-  </div>
+            @if (!last) {
+              <span aria-hidden="true" [class]="connectorClass(state === 'complete')"></span>
+            }
+          </li>
+        }
+      </ol>
+    </nav>
 
-  @for (step of steps(); track step; let i = $index) {
-    <!-- Aria rend le panneau masqué `inert`, mais le masquage visuel est à notre charge. -->
+    <!-- tabindex="-1" : focalisable par next() / previous(), sans entrer dans l'ordre de tabulation. -->
     <div
-      ngTabPanel
-      #panel="ngTabPanel"
-      [value]="`${i}`"
-      [hidden]="!panel.visible()"
+      #routedContent
+      tabindex="-1"
       class="min-w-0 flex-1 rounded-md outline-ring focus-visible:outline-2 focus-visible:outline-offset-4"
     >
-      <ng-template ngTabContent>
-        <ng-container [ngTemplateOutlet]="step.content()" />
-      </ng-template>
+      <ng-content />
     </div>
-  }
-</div>
+  </div>
+} @else {
+  <div ngTabs [class]="rootClass()">
+    <!--
+      selectionMode="explicit" : les flèches déplacent le focus, Entrée / Espace sélectionne.
+      (en mode "follow", chaque flèche changerait d'étape — pas souhaitable pour un stepper)
+    -->
+    <div
+      ngTabList
+      selectionMode="explicit"
+      [orientation]="orientation()"
+      [selectedTab]="selectedValue()"
+      (selectedTabChange)="onSelectedValueChange($event)"
+      [attr.aria-label]="ariaLabel()"
+      [class]="listClass()"
+    >
+      @for (step of steps(); track step; let i = $index, last = $last) {
+        @let state = states()[i];
+
+        <!--
+          [disabled] : grâce à softDisabled (true par défaut sur ngTabList), l'onglet reste
+          focalisable au clavier mais n'est plus sélectionnable, et reçoit aria-disabled="true".
+        -->
+        <div
+          ngTab
+          [value]="`${i}`"
+          [disabled]="!reachable()[i]"
+          [attr.aria-current]="i === selectedIndex() ? 'step' : null"
+          [class]="triggerClass"
+        >
+          <as-step-header
+            [step]="step"
+            [index]="i"
+            [state]="state"
+            [size]="size()"
+            [customIndicator]="customIndicator()"
+          />
+        </div>
+
+        @if (!last) {
+          <span aria-hidden="true" [class]="connectorClass(state === 'complete')"></span>
+        }
+      }
+    </div>
+
+    @for (step of steps(); track step; let i = $index) {
+      <!-- Aria rend le panneau masqué `inert`, mais le masquage visuel est à notre charge. -->
+      <div
+        ngTabPanel
+        #panel="ngTabPanel"
+        [value]="`${i}`"
+        [hidden]="!panel.visible()"
+        class="min-w-0 flex-1 rounded-md outline-ring focus-visible:outline-2 focus-visible:outline-offset-4"
+      >
+        <ng-template ngTabContent>
+          <ng-container [ngTemplateOutlet]="step.content()" />
+        </ng-template>
+      </div>
+    }
+  </div>
+}
