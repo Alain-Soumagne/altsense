@@ -12,9 +12,13 @@ import { cn } from '@altsense/ui/core';
 import { Step } from './step';
 import {
   StepState,
+  StepperOrientation,
+  StepperSize,
   stepConnectorVariants,
   stepIndicatorVariants,
   stepLabelVariants,
+  stepListVariants,
+  stepperVariants,
 } from './stepper.variants';
 
 /**
@@ -37,6 +41,11 @@ export class Stepper {
 
   /** Mode linéaire : impossible d'atteindre une étape tant qu'une précédente n'est pas terminée. */
   readonly linear = input(false, { transform: booleanAttribute });
+
+  /** Disposition : également transmise à Aria (flèches gauche/droite ou haut/bas). */
+  readonly orientation = input<StepperOrientation>('horizontal');
+
+  readonly size = input<StepperSize>('md');
 
   /** Les `<as-step>` projetés dans le stepper. */
   protected readonly steps = contentChildren(Step);
@@ -78,13 +87,25 @@ export class Stepper {
   readonly hasNext = computed(() => this.nextIndex() !== -1);
   readonly hasPrevious = computed(() => this.previousIndex() !== -1);
 
-  // Les fonctions cva sont exposées au template, combinées via cn().
+  // Classes calculées à partir des variantes cva, combinées via cn().
+  protected readonly rootClass = computed(() =>
+    cn(stepperVariants({ orientation: this.orientation() })),
+  );
+  protected readonly listClass = computed(() =>
+    cn(stepListVariants({ orientation: this.orientation() })),
+  );
   protected readonly indicatorClass = (state: StepState) =>
-    cn(stepIndicatorVariants({ state }));
+    cn(stepIndicatorVariants({ state, size: this.size() }));
   protected readonly labelClass = (state: StepState) =>
-    cn(stepLabelVariants({ state }));
+    cn(stepLabelVariants({ state, size: this.size() }));
   protected readonly connectorClass = (complete: boolean) =>
-    cn(stepConnectorVariants({ complete }));
+    cn(
+      stepConnectorVariants({
+        complete,
+        orientation: this.orientation(),
+        size: this.size(),
+      }),
+    );
 
   previous(): void {
     if (this.hasPrevious()) this.selectedIndex.set(this.previousIndex());

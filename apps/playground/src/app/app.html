@@ -13,11 +13,39 @@
 </header>
 
 <main class="mx-auto max-w-3xl space-y-6 px-6 py-10">
-  <h2 class="text-lg font-semibold">Stepper linéaire</h2>
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <h2 class="text-lg font-semibold">Stepper linéaire</h2>
+    <div class="flex gap-4 text-sm">
+      <label class="flex items-center gap-2">
+        Orientation
+        <select
+          class="rounded-md border bg-background px-2 py-1"
+          (change)="orientation.set($any($event.target).value)"
+        >
+          @for (o of orientations; track o) {
+          <option [value]="o" [selected]="o === orientation()">{{ o }}</option>
+          }
+        </select>
+      </label>
+      <label class="flex items-center gap-2">
+        Taille
+        <select
+          class="rounded-md border bg-background px-2 py-1"
+          (change)="size.set($any($event.target).value)"
+        >
+          @for (s of sizes; track s) {
+          <option [value]="s" [selected]="s === size()">{{ s }}</option>
+          }
+        </select>
+      </label>
+    </div>
+  </div>
 
   <as-stepper
     #stepper
     linear
+    [orientation]="orientation()"
+    [size]="size()"
     [(selectedIndex)]="currentStep"
     class="rounded-lg border bg-surface p-6"
   >

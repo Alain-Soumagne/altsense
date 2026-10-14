@@ -1,5 +1,10 @@
 import { Component, computed, signal } from '@angular/core';
-import { Step, Stepper } from '@altsense/ui/stepper';
+import {
+  Step,
+  Stepper,
+  StepperOrientation,
+  StepperSize,
+} from '@altsense/ui/stepper';
 
 @Component({
   imports: [Stepper, Step],
@@ -10,6 +15,14 @@ import { Step, Stepper } from '@altsense/ui/stepper';
 export class App {
   protected readonly dark = signal(false);
   protected readonly currentStep = signal(0);
+
+  protected readonly orientations: StepperOrientation[] = [
+    'horizontal',
+    'vertical',
+  ];
+  protected readonly sizes: StepperSize[] = ['sm', 'md', 'lg'];
+  protected readonly orientation = signal<StepperOrientation>('horizontal');
+  protected readonly size = signal<StepperSize>('md');
 
   protected readonly name = signal('');
   protected readonly address = signal('');

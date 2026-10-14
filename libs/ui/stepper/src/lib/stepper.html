@@ -1,4 +1,4 @@
-<div ngTabs class="flex flex-col gap-6">
+<div ngTabs [class]="rootClass()">
   <!--
     selectionMode="explicit" : les flèches déplacent le focus, Entrée / Espace sélectionne.
     (en mode "follow", chaque flèche changerait d'étape — pas souhaitable pour un stepper)
@@ -6,9 +6,10 @@
   <div
     ngTabList
     selectionMode="explicit"
+    [orientation]="orientation()"
     [selectedTab]="selectedValue()"
     (selectedTabChange)="onSelectedValueChange($event)"
-    class="flex items-center gap-3"
+    [class]="listClass()"
   >
     @for (step of steps(); track step; let i = $index, last = $last) { @let
     state = states()[i];
@@ -30,7 +31,7 @@
           fill="none"
           stroke="currentColor"
           stroke-width="2.5"
-          class="size-4"
+          class="size-1/2"
           aria-hidden="true"
         >
           <path
