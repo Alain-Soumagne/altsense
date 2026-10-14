@@ -11,64 +11,55 @@
     (selectedTabChange)="onSelectedValueChange($event)"
     [class]="listClass()"
   >
-    @for (step of steps(); track step; let i = $index, last = $last) { @let
-    state = states()[i];
+    @for (step of steps(); track step; let i = $index, last = $last) {
+      @let state = states()[i];
 
-    <!--
+      <!--
         [disabled] : grâce à softDisabled (true par défaut sur ngTabList), l'onglet reste
         focalisable au clavier mais n'est plus sélectionnable, et reçoit aria-disabled="true".
       -->
-    <div
-      ngTab
-      [value]="`${i}`"
-      [disabled]="!reachable()[i]"
-      class="flex cursor-pointer items-center gap-2 rounded-md p-1 outline-ring focus-visible:outline-2 focus-visible:outline-offset-2 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
-    >
-      <span [class]="indicatorClass(state)">
-        @if (state === 'complete') {
-        <svg
-          viewBox="0 0 16 16"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-          class="size-1/2"
-          aria-hidden="true"
-        >
-          <path
-            d="M3.5 8.5l3 3 6-7"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
-        } @else { {{ i + 1 }} }
-      </span>
-      <span class="flex flex-col">
-        <span [class]="labelClass(state)">{{ step.label() }}</span>
-        @if (step.optional()) {
-        <span class="text-xs text-muted-foreground">Optionnel</span>
-        }
-      </span>
-    </div>
+      <div
+        ngTab
+        [value]="`${i}`"
+        [disabled]="!reachable()[i]"
+        class="flex cursor-pointer items-center gap-2 rounded-md p-1 outline-ring focus-visible:outline-2 focus-visible:outline-offset-2 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
+      >
+        <span [class]="indicatorClass(state)">
+          @if (state === 'complete') {
+            <svg
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              class="size-1/2"
+              aria-hidden="true"
+            >
+              <path d="M3.5 8.5l3 3 6-7" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          } @else {
+            {{ i + 1 }}
+          }
+        </span>
+        <span class="flex flex-col">
+          <span [class]="labelClass(state)">{{ step.label() }}</span>
+          @if (step.optional()) {
+            <span class="text-xs text-muted-foreground">Optionnel</span>
+          }
+        </span>
+      </div>
 
-    @if (!last) {
-    <span
-      aria-hidden="true"
-      [class]="connectorClass(state === 'complete')"
-    ></span>
-    } }
+      @if (!last) {
+        <span aria-hidden="true" [class]="connectorClass(state === 'complete')"></span>
+      }
+    }
   </div>
 
   @for (step of steps(); track step; let i = $index) {
-  <!-- Aria rend le panneau masqué `inert`, mais le masquage visuel est à notre charge. -->
-  <div
-    ngTabPanel
-    #panel="ngTabPanel"
-    [value]="`${i}`"
-    [hidden]="!panel.visible()"
-  >
-    <ng-template ngTabContent>
-      <ng-container [ngTemplateOutlet]="step.content()" />
-    </ng-template>
-  </div>
+    <!-- Aria rend le panneau masqué `inert`, mais le masquage visuel est à notre charge. -->
+    <div ngTabPanel #panel="ngTabPanel" [value]="`${i}`" [hidden]="!panel.visible()">
+      <ng-template ngTabContent>
+        <ng-container [ngTemplateOutlet]="step.content()" />
+      </ng-template>
+    </div>
   }
 </div>

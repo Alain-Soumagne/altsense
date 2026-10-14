@@ -1,10 +1,4 @@
-import {
-  Component,
-  TemplateRef,
-  booleanAttribute,
-  input,
-  viewChild,
-} from '@angular/core';
+import { Component, TemplateRef, booleanAttribute, input, viewChild } from '@angular/core';
 
 /**
  * Une étape du stepper.

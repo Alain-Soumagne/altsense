@@ -70,8 +70,7 @@ export class Stepper {
     let blocked = false;
     return this.steps().map((step) => {
       const reachable = !step.disabled() && !blocked;
-      if (this.linear() && step.completed() === false && !step.optional())
-        blocked = true;
+      if (this.linear() && step.completed() === false && !step.optional()) blocked = true;
       return reachable;
     });
   });

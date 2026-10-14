@@ -96,9 +96,5 @@ export const stepConnectorVariants = cva('rounded-full transition-colors', {
 });
 
 /** Valeurs acceptées par les inputs du stepper, déduites des variantes cva. */
-export type StepperOrientation = NonNullable<
-  VariantProps<typeof stepperVariants>['orientation']
->;
-export type StepperSize = NonNullable<
-  VariantProps<typeof stepIndicatorVariants>['size']
->;
+export type StepperOrientation = NonNullable<VariantProps<typeof stepperVariants>['orientation']>;
+export type StepperSize = NonNullable<VariantProps<typeof stepIndicatorVariants>['size']>;

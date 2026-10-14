@@ -23,7 +23,7 @@
           (change)="orientation.set($any($event.target).value)"
         >
           @for (o of orientations; track o) {
-          <option [value]="o" [selected]="o === orientation()">{{ o }}</option>
+            <option [value]="o" [selected]="o === orientation()">{{ o }}</option>
           }
         </select>
       </label>
@@ -34,7 +34,7 @@
           (change)="size.set($any($event.target).value)"
         >
           @for (s of sizes; track s) {
-          <option [value]="s" [selected]="s === size()">{{ s }}</option>
+            <option [value]="s" [selected]="s === size()">{{ s }}</option>
           }
         </select>
       </label>
@@ -86,9 +86,7 @@
     >
       Précédent
     </button>
-    <span class="text-sm text-muted-foreground"
-      >Étape courante : {{ currentStep() + 1 }}</span
-    >
+    <span class="text-sm text-muted-foreground">Étape courante : {{ currentStep() + 1 }}</span>
     <button
       type="button"
       class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground outline-ring focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50"
