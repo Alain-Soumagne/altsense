@@ -1,0 +1,94 @@
+<div ngTabs [class]="rootClass()">
+  <!--
+    selectionMode="explicit" : les flèches déplacent le focus, Entrée / Espace sélectionne.
+    (en mode "follow", chaque flèche changerait d'étape — pas souhaitable pour un stepper)
+  -->
+  <div
+    ngTabList
+    selectionMode="explicit"
+    [orientation]="orientation()"
+    [selectedTab]="selectedValue()"
+    (selectedTabChange)="onSelectedValueChange($event)"
+    [class]="listClass()"
+  >
+    @for (step of steps(); track step; let i = $index, last = $last) {
+      @let state = states()[i];
+      @let hint = hintOf(step);
+
+      <!--
+        [disabled] : grâce à softDisabled (true par défaut sur ngTabList), l'onglet reste
+        focalisable au clavier mais n'est plus sélectionnable, et reçoit aria-disabled="true".
+      -->
+      <div
+        ngTab
+        [value]="`${i}`"
+        [disabled]="!reachable()[i]"
+        [attr.aria-current]="i === selectedIndex() ? 'step' : null"
+        class="flex cursor-pointer items-center gap-2 rounded-md p-1 text-left outline-ring focus-visible:outline-2 focus-visible:outline-offset-2 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
+      >
+        <span [class]="indicatorClass(state)">
+          @if (customIndicator(); as indicator) {
+            <ng-container
+              [ngTemplateOutlet]="indicator.template"
+              [ngTemplateOutletContext]="{ $implicit: state, index: i }"
+            />
+          } @else {
+            @switch (state) {
+              @case ('complete') {
+                <svg
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  class="size-1/2"
+                  aria-hidden="true"
+                >
+                  <path d="M3.5 8.5l3 3 6-7" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              }
+              @case ('error') {
+                <span aria-hidden="true">!</span>
+              }
+              @default {
+                {{ i + 1 }}
+              }
+            }
+          }
+        </span>
+
+        <span class="flex flex-col">
+          <span [class]="labelClass(state)">
+            @if (step.customLabel(); as label) {
+              <ng-container [ngTemplateOutlet]="label.template" />
+            } @else {
+              {{ step.label() }}
+            }
+          </span>
+          @if (hint) {
+            <span [class]="hintClass(state === 'error')">{{ hint }}</span>
+          }
+          <span class="sr-only">{{ srStatusOf(state) }}</span>
+        </span>
+      </div>
+
+      @if (!last) {
+        <span aria-hidden="true" [class]="connectorClass(state === 'complete')"></span>
+      }
+    }
+  </div>
+
+  @for (step of steps(); track step; let i = $index) {
+    <!-- Aria rend le panneau masqué `inert`, mais le masquage visuel est à notre charge. -->
+    <div
+      ngTabPanel
+      #panel="ngTabPanel"
+      [value]="`${i}`"
+      [hidden]="!panel.visible()"
+      class="min-w-0 flex-1 rounded-md outline-ring focus-visible:outline-2 focus-visible:outline-offset-4"
+    >
+      <ng-template ngTabContent>
+        <ng-container [ngTemplateOutlet]="step.content()" />
+      </ng-template>
+    </div>
+  }
+</div>

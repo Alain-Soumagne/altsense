@@ -8,12 +8,13 @@
     "importHelpers": true,
     "target": "es2022",
     "module": "esnext",
-    "lib": ["es2022", "dom"],
+    "lib": ["es2023", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "paths": {
       "@altsense/ui": ["./libs/ui/src/index.ts"],
-      "@altsense/ui/core": ["./libs/ui/core/src/index.ts"]
+      "@altsense/ui/core": ["./libs/ui/core/src/index.ts"],
+      "@altsense/ui/stepper": ["./libs/ui/stepper/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
