@@ -1,0 +1,43 @@
+<span [class]="indicatorClass()">
+  @if (customIndicator(); as indicator) {
+    <ng-container
+      [ngTemplateOutlet]="indicator.template"
+      [ngTemplateOutletContext]="{ $implicit: state(), index: index() }"
+    />
+  } @else {
+    @switch (state()) {
+      @case ('complete') {
+        <svg
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          class="size-1/2"
+          aria-hidden="true"
+        >
+          <path d="M3.5 8.5l3 3 6-7" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      }
+      @case ('error') {
+        <span aria-hidden="true">!</span>
+      }
+      @default {
+        {{ index() + 1 }}
+      }
+    }
+  }
+</span>
+
+<span class="flex flex-col">
+  <span [class]="labelClass()">
+    @if (step().customLabel(); as label) {
+      <ng-container [ngTemplateOutlet]="label.template" />
+    } @else {
+      {{ step().label() }}
+    }
+  </span>
+  @if (hint(); as hint) {
+    <span [class]="hintClass()">{{ hint }}</span>
+  }
+  <span class="sr-only">{{ srStatus() }}</span>
+</span>

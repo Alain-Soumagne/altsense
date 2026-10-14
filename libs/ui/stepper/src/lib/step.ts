@@ -6,7 +6,11 @@ import {
   input,
   viewChild,
 } from '@angular/core';
+import { UrlTree } from '@angular/router';
 import { StepLabel } from './step-templates';
+
+/** Cible de navigation d'une étape : mêmes formes que `routerLink`. */
+export type StepLink = string | readonly unknown[] | UrlTree;
 
 /**
  * Une étape du stepper.
@@ -47,7 +51,14 @@ export class Step {
    */
   readonly error = input<boolean | string>(false);
 
-  /** Contenu de l'étape, rendu par le stepper. */
+  /**
+   * Route de l'étape. Dès qu'une étape a un `link`, le stepper passe en mode router :
+   * les étapes deviennent des liens et le contenu affiché est celui du `<router-outlet>`.
+   * Un lien relatif est résolu par rapport à la route du composant qui contient le stepper.
+   */
+  readonly link = input<StepLink>();
+
+  /** Contenu de l'étape, rendu par le stepper (ignoré en mode router). */
   readonly content = viewChild.required(TemplateRef);
 
   /** Template de libellé personnalisé, s'il est fourni. */
