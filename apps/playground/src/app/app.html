@@ -1,7 +1,21 @@
-<header class="flex items-center justify-between border-b px-6 py-4">
+<header class="flex items-center justify-between gap-6 border-b px-6 py-4">
   <h1 class="text-xl font-semibold tracking-tight">
     Alt Sense <span class="font-normal text-muted-foreground">playground</span>
   </h1>
+
+  <nav aria-label="Pages" class="flex flex-1 gap-1 text-sm">
+    @for (page of pages; track page.path) {
+      <a
+        [routerLink]="page.path"
+        routerLinkActive="bg-muted font-medium text-foreground"
+        ariaCurrentWhenActive="page"
+        class="rounded-md px-3 py-1.5 text-muted-foreground outline-ring hover:bg-muted focus-visible:outline-2"
+      >
+        {{ page.label }}
+      </a>
+    }
+  </nav>
+
   <button
     type="button"
     class="rounded-md border px-3 py-1.5 text-sm outline-ring hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2"
@@ -12,111 +26,6 @@
   </button>
 </header>
 
-<main class="mx-auto max-w-3xl space-y-6 px-6 py-10">
-  <div class="flex flex-wrap items-center justify-between gap-4">
-    <h2 class="text-lg font-semibold">Stepper linéaire</h2>
-    <div class="flex gap-4 text-sm">
-      <label class="flex items-center gap-2">
-        Orientation
-        <select
-          class="rounded-md border bg-background px-2 py-1"
-          (change)="orientation.set($any($event.target).value)"
-        >
-          @for (o of orientations; track o) {
-            <option [value]="o" [selected]="o === orientation()">{{ o }}</option>
-          }
-        </select>
-      </label>
-      <label class="flex items-center gap-2">
-        Taille
-        <select
-          class="rounded-md border bg-background px-2 py-1"
-          (change)="size.set($any($event.target).value)"
-        >
-          @for (s of sizes; track s) {
-            <option [value]="s" [selected]="s === size()">{{ s }}</option>
-          }
-        </select>
-      </label>
-    </div>
-  </div>
-
-  <as-stepper
-    #stepper
-    linear
-    [orientation]="orientation()"
-    [size]="size()"
-    [(selectedIndex)]="currentStep"
-    class="rounded-lg border bg-surface p-6"
-  >
-    <as-step label="Informations" description="Qui êtes-vous ?" [completed]="nameValid()">
-      <label class="flex flex-col gap-1 text-sm">
-        Nom (2 caractères min.)
-        <input
-          class="rounded-md border bg-background px-3 py-2 outline-ring focus-visible:outline-2"
-          [value]="name()"
-          (input)="name.set($any($event.target).value)"
-        />
-      </label>
-    </as-step>
-    <as-step label="Livraison" [completed]="addressValid()" [error]="addressError()">
-      <label class="flex flex-col gap-1 text-sm">
-        Adresse (5 caractères min.)
-        <input
-          class="rounded-md border bg-background px-3 py-2 outline-ring focus-visible:outline-2"
-          [value]="address()"
-          (input)="address.set($any($event.target).value)"
-        />
-      </label>
-    </as-step>
-    <as-step label="Options" optional>
-      <p class="text-sm">Étape facultative : elle ne bloque pas la suite.</p>
-    </as-step>
-    <as-step label="Paiement">
-      <p class="text-sm">Dernière étape.</p>
-    </as-step>
-  </as-stepper>
-
-  <div class="flex items-center justify-between">
-    <button
-      type="button"
-      class="rounded-md border px-4 py-2 text-sm outline-ring hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50"
-      [disabled]="!stepper.hasPrevious()"
-      (click)="stepper.previous()"
-    >
-      Précédent
-    </button>
-    <span class="text-sm text-muted-foreground">Étape courante : {{ currentStep() + 1 }}</span>
-    <button
-      type="button"
-      class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground outline-ring focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50"
-      [disabled]="!stepper.hasNext()"
-      (click)="stepper.next()"
-    >
-      Suivant
-    </button>
-  </div>
-
-  <h2 class="pt-6 text-lg font-semibold">Templates personnalisés</h2>
-
-  <as-stepper [(selectedIndex)]="customStep" class="rounded-lg border bg-surface p-6">
-    <!-- Pastille personnalisée pour toutes les étapes : lettre au lieu du numéro. -->
-    <ng-template asStepIndicator let-state let-index="index">
-      {{ state === 'complete' ? '✓' : 'ABC'[index] }}
-    </ng-template>
-
-    <as-step label="Panier">
-      <p class="text-sm">Contenu du panier.</p>
-    </as-step>
-    <as-step label="Paiement sécurisé">
-      <ng-template asStepLabel>
-        Paiement
-        <span class="rounded bg-success px-1.5 py-0.5 text-xs text-success-foreground">SSL</span>
-      </ng-template>
-      <p class="text-sm">Le libellé de cette étape est un template riche.</p>
-    </as-step>
-    <as-step label="Confirmation">
-      <p class="text-sm">Merci !</p>
-    </as-step>
-  </as-stepper>
+<main class="mx-auto max-w-3xl px-6 py-10">
+  <router-outlet />
 </main>
