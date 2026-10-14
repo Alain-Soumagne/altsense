@@ -1,9 +1,7 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 
-/** État visuel d'une étape, dérivé par le stepper. */
 export type StepState = 'upcoming' | 'current' | 'complete' | 'error';
 
-/** Conteneur racine : liste des étapes au-dessus (horizontal) ou à gauche (vertical) du contenu. */
 export const stepperVariants = cva('flex', {
   variants: {
     orientation: {
@@ -24,7 +22,6 @@ export const stepListVariants = cva('flex', {
   defaultVariants: { orientation: 'horizontal' },
 });
 
-/** Mode router : `<li>` regroupant le lien d'une étape et le connecteur qui le suit. */
 export const stepItemVariants = cva('flex', {
   variants: {
     orientation: {
@@ -35,12 +32,10 @@ export const stepItemVariants = cva('flex', {
   defaultVariants: { orientation: 'horizontal' },
 });
 
-/** Élément cliquable d'une étape (onglet ou lien) : focus visible et état désactivé. */
 export const stepTriggerVariants = cva(
   'flex cursor-pointer items-center gap-2 rounded-md p-1 text-left outline-ring focus-visible:outline-2 focus-visible:outline-offset-2 aria-disabled:cursor-not-allowed aria-disabled:opacity-50',
 );
 
-/** Pastille ronde (numéro ou coche) devant le libellé. */
 export const stepIndicatorVariants = cva(
   'flex shrink-0 items-center justify-center rounded-full border-2 font-medium transition-colors',
   {
@@ -78,7 +73,6 @@ export const stepLabelVariants = cva('transition-colors', {
   defaultVariants: { state: 'upcoming', size: 'md' },
 });
 
-/** Texte secondaire sous le libellé (description, « Optionnel » ou message d'erreur). */
 export const stepHintVariants = cva('text-xs', {
   variants: {
     error: {
@@ -89,7 +83,6 @@ export const stepHintVariants = cva('text-xs', {
   defaultVariants: { error: false },
 });
 
-/** Trait reliant deux étapes : coloré une fois l'étape précédente terminée. */
 export const stepConnectorVariants = cva('rounded-full transition-colors', {
   variants: {
     complete: {
@@ -102,8 +95,7 @@ export const stepConnectorVariants = cva('rounded-full transition-colors', {
     },
     size: { sm: '', md: '', lg: '' },
   },
-  // En vertical, le trait doit passer sous le centre de la pastille :
-  // marge = padding de l'onglet (p-1) + moitié de la pastille - moitié du trait.
+  // Centers the vertical line under the indicator: trigger padding + half indicator - half line.
   compoundVariants: [
     {
       orientation: 'vertical',
@@ -124,6 +116,5 @@ export const stepConnectorVariants = cva('rounded-full transition-colors', {
   defaultVariants: { complete: false, orientation: 'horizontal', size: 'md' },
 });
 
-/** Valeurs acceptées par les inputs du stepper, déduites des variantes cva. */
 export type StepperOrientation = NonNullable<VariantProps<typeof stepperVariants>['orientation']>;
 export type StepperSize = NonNullable<VariantProps<typeof stepIndicatorVariants>['size']>;

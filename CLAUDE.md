@@ -28,4 +28,5 @@
 - Une seule lib `libs/ui` (`@altsense/ui`) ; chaque composant = entry point secondaire (`@altsense/ui/<nom>`).
 - Classes : passer par `cn()` de `@altsense/ui/core` ; variantes dans un fichier `<nom>.variants.ts` (cva).
 - Couleurs : uniquement les tokens sémantiques (`bg-primary`, `text-muted-foreground`…), jamais de couleurs Tailwind brutes.
+- Commentaires : en anglais uniquement, et seulement pour un « pourquoi » non évident (jamais de paraphrase du code).
 - Angular 22 : zoneless, signals (`input()`, `model()`, `computed()`), `host` plutôt que `@HostBinding`, control flow `@if/@for`.

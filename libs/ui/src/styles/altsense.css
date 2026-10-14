@@ -1,11 +1,4 @@
-/*
- * Alt Sense — design tokens (Tailwind CSS v4)
- *
- * 1. Tokens sémantiques en variables CSS (--as-*), redéfinis par thème.
- * 2. Exposés à Tailwind via @theme inline → utilitaires bg-primary, text-muted-foreground, etc.
- *
- * À importer après `@import "tailwindcss";` dans la feuille de styles globale de l'app.
- */
+/* Import after `@import 'tailwindcss';` in the app's global stylesheet. */
 
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 

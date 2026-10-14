@@ -1,8 +1,4 @@
 @if (routed()) {
-  <!--
-    Mode router : une étape qui change l'URL est un lien de navigation, pas un onglet.
-    On utilise donc <nav> + liste ordonnée + routerLink, et aria-current="step" pour l'étape courante.
-  -->
   <div [class]="rootClass()">
     <nav [attr.aria-label]="ariaLabel()">
       <ol [class]="listClass()">
@@ -25,7 +21,7 @@
                 />
               </a>
             } @else {
-              <!-- Lien désactivé : pas de href, mais reste focalisable pour être découvert au clavier. -->
+              <!-- No href, but still focusable so keyboard users can discover it. -->
               <a role="link" aria-disabled="true" tabindex="0" [class]="triggerClass">
                 <as-step-header
                   [step]="step"
@@ -45,7 +41,6 @@
       </ol>
     </nav>
 
-    <!-- tabindex="-1" : focalisable par next() / previous(), sans entrer dans l'ordre de tabulation. -->
     <div
       #routedContent
       tabindex="-1"
@@ -56,10 +51,7 @@
   </div>
 } @else {
   <div ngTabs [class]="rootClass()">
-    <!--
-      selectionMode="explicit" : les flèches déplacent le focus, Entrée / Espace sélectionne.
-      (en mode "follow", chaque flèche changerait d'étape — pas souhaitable pour un stepper)
-    -->
+    <!-- Arrow keys only move focus; Enter / Space selects a step. -->
     <div
       ngTabList
       selectionMode="explicit"
@@ -72,10 +64,7 @@
       @for (step of steps(); track step; let i = $index, last = $last) {
         @let state = states()[i];
 
-        <!--
-          [disabled] : grâce à softDisabled (true par défaut sur ngTabList), l'onglet reste
-          focalisable au clavier mais n'est plus sélectionnable, et reçoit aria-disabled="true".
-        -->
+        <!-- softDisabled (default): disabled tabs stay focusable but cannot be selected. -->
         <div
           ngTab
           [value]="`${i}`"
@@ -99,7 +88,7 @@
     </div>
 
     @for (step of steps(); track step; let i = $index) {
-      <!-- Aria rend le panneau masqué `inert`, mais le masquage visuel est à notre charge. -->
+      <!-- Aria makes hidden panels inert but does not hide them visually. -->
       <div
         ngTabPanel
         #panel="ngTabPanel"

@@ -86,7 +86,6 @@
   <h2 class="pt-6 text-lg font-semibold">Templates personnalisés</h2>
 
   <as-stepper [(selectedIndex)]="customStep" class="rounded-lg border bg-surface p-6">
-    <!-- Pastille personnalisée pour toutes les étapes : lettre au lieu du numéro. -->
     <ng-template asStepIndicator let-state let-index="index">
       {{ state === 'complete' ? '✓' : 'ABC'[index] }}
     </ng-template>
