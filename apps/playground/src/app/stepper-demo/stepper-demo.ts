@@ -1,8 +1,10 @@
 import { Component, computed, signal } from '@angular/core';
 import {
-  Step,
   StepIndicator,
   StepLabel,
+  StepList,
+  StepPanel,
+  StepTrigger,
   Stepper,
   StepperOrientation,
   StepperSize,
@@ -10,7 +12,7 @@ import {
 
 @Component({
   selector: 'as-stepper-demo',
-  imports: [Stepper, Step, StepIndicator, StepLabel],
+  imports: [Stepper, StepList, StepTrigger, StepPanel, StepIndicator, StepLabel],
   templateUrl: './stepper-demo.html',
 })
 export class StepperDemo {

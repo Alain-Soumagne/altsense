@@ -1,8 +1,6 @@
-import { NgTemplateOutlet } from '@angular/common';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import {
   Component,
-  ElementRef,
   Injector,
   afterNextRender,
   booleanAttribute,
@@ -14,96 +12,50 @@ import {
   input,
   model,
   untracked,
-  viewChild,
-  viewChildren,
 } from '@angular/core';
-import {
-  ActivatedRoute,
-  IsActiveMatchOptions,
-  Router,
-  RouterLink,
-  UrlTree,
-  containsTree,
-} from '@angular/router';
-import { Tab, TabContent, TabList, TabPanel, Tabs } from '@angular/aria/tabs';
+import { Router } from '@angular/router';
+import { Tabs } from '@angular/aria/tabs';
 import { cn } from '@altsense/ui/core';
-import { Step, StepLink } from './step';
-import { StepHeader } from './step-header';
+import { Step } from './step';
+import { StepLink } from './step-link';
+import { StepList } from './step-list';
+import { StepNav } from './step-nav';
+import { StepOutlet } from './step-outlet';
+import { StepPanel } from './step-panel';
 import { StepIndicator } from './step-templates';
-import {
-  StepState,
-  StepperOrientation,
-  StepperSize,
-  stepConnectorVariants,
-  stepItemVariants,
-  stepListVariants,
-  stepTriggerVariants,
-  stepperVariants,
-} from './stepper.variants';
+import { STEPPER } from './stepper-token';
+import { StepState, StepperOrientation, StepperSize, stepperVariants } from './stepper.variants';
 
-const ACTIVE_MATCH: IsActiveMatchOptions = {
-  paths: 'subset',
-  queryParams: 'ignored',
-  matrixParams: 'ignored',
-  fragment: 'ignored',
-};
-
-/**
- * Renders Aria tabs by default, or a `<nav>` of router links as soon as a step has a `link`:
- * a step that changes the URL is navigation, not a tab.
- */
 @Component({
   selector: 'as-stepper',
-  imports: [Tabs, TabList, Tab, TabPanel, TabContent, NgTemplateOutlet, RouterLink, StepHeader],
-  templateUrl: './stepper.html',
-  host: { class: 'block' },
+  template: '<ng-content />',
+  hostDirectives: [Tabs],
+  providers: [{ provide: STEPPER, useExisting: Stepper }],
+  host: { '[class]': 'hostClass()' },
 })
 export class Stepper {
   private readonly announcer = inject(LiveAnnouncer);
   private readonly injector = inject(Injector);
   private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute, { optional: true });
 
   readonly selectedIndex = model(0);
-
   readonly linear = input(false, { transform: booleanAttribute });
-
-  readonly orientation = input<StepperOrientation>('horizontal');
-
   readonly size = input<StepperSize>('md');
 
-  readonly ariaLabel = input('Étapes', { alias: 'aria-label' });
+  readonly steps = contentChildren(Step, { descendants: true });
+  readonly customIndicator = contentChild(StepIndicator);
 
-  protected readonly steps = contentChildren(Step);
+  private readonly list = contentChild(StepList);
+  private readonly nav = contentChild(StepNav);
+  private readonly panels = contentChildren(StepPanel, { descendants: true });
+  private readonly links = contentChildren(StepLink, { descendants: true });
+  private readonly outlet = contentChild(StepOutlet, { descendants: true });
 
-  protected readonly customIndicator = contentChild(StepIndicator);
-
-  private readonly panels = viewChildren(TabPanel);
-
-  private readonly routedContent = viewChild<ElementRef<HTMLElement>>('routedContent');
-
-  protected readonly routed = computed(() =>
-    this.steps().some((step) => step.link() !== undefined),
+  readonly orientation = computed<StepperOrientation>(
+    () => this.list()?.orientation() ?? this.nav()?.orientation() ?? 'horizontal',
   );
 
-  protected readonly urlTrees = computed(() =>
-    this.steps().map((step) => {
-      const link = step.link();
-      return link === undefined ? null : this.toUrlTree(link);
-    }),
-  );
-
-  private readonly activeRouteIndex = computed(() => {
-    const url = this.router.lastSuccessfulNavigation()?.finalUrl;
-    if (!url) return -1;
-    return this.urlTrees().findIndex(
-      (tree) => tree !== null && containsTree(url, tree, ACTIVE_MATCH),
-    );
-  });
-
-  protected readonly selectedValue = computed(() => `${this.selectedIndex()}`);
-
-  protected readonly states = computed<StepState[]>(() =>
+  readonly states = computed<StepState[]>(() =>
     this.steps().map((step, index) => {
       if (step.error()) return 'error';
       if (index === this.selectedIndex()) return 'current';
@@ -112,7 +64,7 @@ export class Stepper {
     }),
   );
 
-  protected readonly reachable = computed<boolean[]>(() => {
+  readonly reachable = computed<boolean[]>(() => {
     let blocked = false;
     return this.steps().map((step) => {
       const reachable = !step.disabled() && !blocked;
@@ -131,24 +83,13 @@ export class Stepper {
   readonly hasNext = computed(() => this.nextIndex() !== -1);
   readonly hasPrevious = computed(() => this.previousIndex() !== -1);
 
-  protected readonly rootClass = computed(() =>
+  private readonly activeRouteIndex = computed(() =>
+    this.links().findIndex((link) => link.active()),
+  );
+
+  protected readonly hostClass = computed(() =>
     cn(stepperVariants({ orientation: this.orientation() })),
   );
-  protected readonly listClass = computed(() =>
-    cn(stepListVariants({ orientation: this.orientation() })),
-  );
-  protected readonly itemClass = computed(() =>
-    cn(stepItemVariants({ orientation: this.orientation() })),
-  );
-  protected readonly triggerClass = cn(stepTriggerVariants());
-  protected readonly connectorClass = (complete: boolean) =>
-    cn(
-      stepConnectorVariants({
-        complete,
-        orientation: this.orientation(),
-        size: this.size(),
-      }),
-    );
 
   constructor() {
     // In router mode the URL is the source of truth.
@@ -185,10 +126,10 @@ export class Stepper {
   }
 
   private goTo(index: number): void {
-    const tree = this.urlTrees()[index];
-    if (tree) {
+    const link = this.links()[index];
+    if (link) {
       // selectedIndex follows through the URL sync effect.
-      void this.router.navigateByUrl(tree).then((navigated) => {
+      void this.router.navigateByUrl(link.urlTree()).then((navigated) => {
         if (navigated) this.focusContent();
       });
     } else {
@@ -201,22 +142,10 @@ export class Stepper {
   private focusContent(): void {
     afterNextRender(
       () => {
-        const target = this.routed()
-          ? this.routedContent()?.nativeElement
-          : this.panels()[this.selectedIndex()]?.element;
-        target?.focus();
+        const panel = this.panels().find((panel) => panel.visible());
+        (panel?.element ?? this.outlet()?.element)?.focus();
       },
       { injector: this.injector },
     );
-  }
-
-  private toUrlTree(link: StepLink): UrlTree {
-    if (link instanceof UrlTree) return link;
-    const commands = typeof link === 'string' ? [link] : [...link];
-    return this.router.createUrlTree(commands, { relativeTo: this.route });
-  }
-
-  protected onSelectedValueChange(value: string | undefined): void {
-    if (value !== undefined) this.selectedIndex.set(Number(value));
   }
 }

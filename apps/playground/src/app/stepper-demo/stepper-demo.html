@@ -30,12 +30,32 @@
   <as-stepper
     #stepper
     linear
-    [orientation]="orientation()"
     [size]="size()"
     [(selectedIndex)]="currentStep"
     class="rounded-lg border bg-surface p-6"
   >
-    <as-step label="Informations" description="Qui êtes-vous ?" [completed]="nameValid()">
+    <as-step-list
+      selectionMode="explicit"
+      [orientation]="orientation()"
+      aria-label="Étapes de l'inscription"
+    >
+      <as-step-trigger
+        value="informations"
+        label="Informations"
+        description="Qui êtes-vous ?"
+        [completed]="nameValid()"
+      />
+      <as-step-trigger
+        value="livraison"
+        label="Livraison"
+        [completed]="addressValid()"
+        [error]="addressError()"
+      />
+      <as-step-trigger value="options" label="Options" optional />
+      <as-step-trigger value="paiement" label="Paiement" />
+    </as-step-list>
+
+    <as-step-panel value="informations">
       <label class="flex flex-col gap-1 text-sm">
         Nom (2 caractères min.)
         <input
@@ -44,8 +64,8 @@
           (input)="name.set($any($event.target).value)"
         />
       </label>
-    </as-step>
-    <as-step label="Livraison" [completed]="addressValid()" [error]="addressError()">
+    </as-step-panel>
+    <as-step-panel value="livraison">
       <label class="flex flex-col gap-1 text-sm">
         Adresse (5 caractères min.)
         <input
@@ -54,13 +74,13 @@
           (input)="address.set($any($event.target).value)"
         />
       </label>
-    </as-step>
-    <as-step label="Options" optional>
+    </as-step-panel>
+    <as-step-panel value="options">
       <p class="text-sm">Étape facultative : elle ne bloque pas la suite.</p>
-    </as-step>
-    <as-step label="Paiement">
+    </as-step-panel>
+    <as-step-panel value="paiement">
       <p class="text-sm">Dernière étape.</p>
-    </as-step>
+    </as-step-panel>
   </as-stepper>
 
   <div class="flex items-center justify-between">
@@ -90,18 +110,21 @@
       {{ state === 'complete' ? '✓' : 'ABC'[index] }}
     </ng-template>
 
-    <as-step label="Panier">
-      <p class="text-sm">Contenu du panier.</p>
-    </as-step>
-    <as-step label="Paiement sécurisé">
-      <ng-template asStepLabel>
-        Paiement
-        <span class="rounded bg-success px-1.5 py-0.5 text-xs text-success-foreground">SSL</span>
-      </ng-template>
+    <as-step-list selectionMode="explicit" aria-label="Étapes de la commande">
+      <as-step-trigger value="panier" label="Panier" />
+      <as-step-trigger value="paiement" label="Paiement sécurisé">
+        <ng-template asStepLabel>
+          Paiement
+          <span class="rounded bg-success px-1.5 py-0.5 text-xs text-success-foreground">SSL</span>
+        </ng-template>
+      </as-step-trigger>
+      <as-step-trigger value="confirmation" label="Confirmation" />
+    </as-step-list>
+
+    <as-step-panel value="panier"><p class="text-sm">Contenu du panier.</p></as-step-panel>
+    <as-step-panel value="paiement">
       <p class="text-sm">Le libellé de cette étape est un template riche.</p>
-    </as-step>
-    <as-step label="Confirmation">
-      <p class="text-sm">Merci !</p>
-    </as-step>
+    </as-step-panel>
+    <as-step-panel value="confirmation"><p class="text-sm">Merci !</p></as-step-panel>
   </as-stepper>
 </div>
