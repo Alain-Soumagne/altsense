@@ -2,20 +2,17 @@
   <h2 class="text-lg font-semibold">Stepper piloté par le router</h2>
   <p class="text-sm text-muted-foreground">
     Chaque étape est une route (<code>/checkout/…</code>) : l'URL détermine l'étape courante, les
-    étapes sont de vrais liens, et le contenu vient du <code>&lt;router-outlet&gt;</code>.
+    étapes sont de vrais liens, et le contenu vient de <code>&lt;as-step-outlet&gt;</code>.
   </p>
 
-  <as-stepper
-    #stepper
-    linear
-    aria-label="Étapes de la commande"
-    class="rounded-lg border bg-surface p-6"
-  >
-    <as-step label="Informations" link="informations" [completed]="store.nameValid()" />
-    <as-step label="Livraison" link="livraison" [completed]="store.addressValid()" />
-    <as-step label="Paiement" link="paiement" />
+  <as-stepper #stepper linear class="rounded-lg border bg-surface p-6">
+    <nav asStepNav aria-label="Étapes de la commande">
+      <as-step-link link="informations" label="Informations" [completed]="store.nameValid()" />
+      <as-step-link link="livraison" label="Livraison" [completed]="store.addressValid()" />
+      <as-step-link link="paiement" label="Paiement" />
+    </nav>
 
-    <router-outlet />
+    <as-step-outlet />
   </as-stepper>
 
   <div class="flex items-center justify-between">

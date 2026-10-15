@@ -1,8 +1,8 @@
 <span [class]="indicatorClass()">
-  @if (customIndicator(); as indicator) {
+  @if (stepper.customIndicator(); as indicator) {
     <ng-container
       [ngTemplateOutlet]="indicator.template"
-      [ngTemplateOutletContext]="{ $implicit: state(), index: index() }"
+      [ngTemplateOutletContext]="{ $implicit: state(), index: step().index() }"
     />
   } @else {
     @switch (state()) {
@@ -22,7 +22,7 @@
         <span aria-hidden="true">!</span>
       }
       @default {
-        {{ index() + 1 }}
+        {{ step().index() + 1 }}
       }
     }
   }

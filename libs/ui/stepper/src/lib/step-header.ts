@@ -1,15 +1,9 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { cn } from '@altsense/ui/core';
 import { Step } from './step';
-import { StepIndicator } from './step-templates';
-import {
-  StepState,
-  StepperSize,
-  stepHintVariants,
-  stepIndicatorVariants,
-  stepLabelVariants,
-} from './stepper.variants';
+import { STEPPER } from './stepper-token';
+import { stepHintVariants, stepIndicatorVariants, stepLabelVariants } from './stepper.variants';
 
 @Component({
   selector: 'as-step-header',
@@ -18,17 +12,17 @@ import {
   host: { class: 'contents' },
 })
 export class StepHeader {
+  protected readonly stepper = inject(STEPPER);
+
   readonly step = input.required<Step>();
-  readonly index = input.required<number>();
-  readonly state = input.required<StepState>();
-  readonly size = input.required<StepperSize>();
-  readonly customIndicator = input<StepIndicator>();
+
+  protected readonly state = computed(() => this.step().state());
 
   protected readonly indicatorClass = computed(() =>
-    cn(stepIndicatorVariants({ state: this.state(), size: this.size() })),
+    cn(stepIndicatorVariants({ state: this.state(), size: this.stepper.size() })),
   );
   protected readonly labelClass = computed(() =>
-    cn(stepLabelVariants({ state: this.state(), size: this.size() })),
+    cn(stepLabelVariants({ state: this.state(), size: this.stepper.size() })),
   );
   protected readonly hintClass = computed(() =>
     cn(stepHintVariants({ error: this.state() === 'error' })),
